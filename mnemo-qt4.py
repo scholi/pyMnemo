@@ -75,9 +75,9 @@ class shortestMnemo(QtGui.QWidget):
 
 	def updateMnemo(self):
 			sender = self.sender()
-			c.execute("select mnemo from lexique where ortho=?;",[str(sender.currentText())])
+			c.execute("select mnemo from lexique where ortho=?;",[str(sender.currentText().toUtf8()).decode('utf-8')])
 			mnemo=c.fetchone()[0]
-			c.execute("insert or replace into mnemo (nom,mnemo) values (?,?);",[str(sender.currentText()),mnemo])
+			c.execute("insert or replace into mnemo (nom,mnemo) values (?,?);",[str(sender.currentText().toUtf8()).decode('utf-8'),mnemo])
 			conn.commit()
 			for x in self.v[mnemo]:
 				x.setCurrentIndex(sender.currentIndex())
