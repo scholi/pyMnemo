@@ -10,16 +10,16 @@ from PyQt4 import QtGui, QtCore
 conn = sqlite3.connect('Lexique380.db')
 c = conn.cursor()
 
-def longestMnemo(num, lvl=[]):
+def longestMnemo(num, lvl=[],one=True):
 	res=[]
 	if len(num)==1: return [[num]]
-	if len(num)==0: return [[]]
-	for i in range(2,len(num)+1):
+	if len(num)==2: return [[num]]
+	for i in range([2,1][one],len(num)+1):
 		print lvl+[i]
 		c.execute("select ortho from lexique where cgram='NOM' and mnemo=?;",[num[:i]])
 		r=c.fetchone()
 		if r!=None:
-			for x in longestMnemo(num[i:],lvl+[i]):
+			for x in longestMnemo(num[i:],lvl+[i],one and i!=1):
 				res.append([num[:i]]+x)
 	return res
 
