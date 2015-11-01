@@ -10,28 +10,36 @@ from PyQt4 import QtGui, QtCore
 conn = sqlite3.connect('Lexique380.db')
 c = conn.cursor()
 
-def longestMnemo(num, lvl=[],one=True):
-	res=[]
-	if len(num)==1: return [[num]]
-	if len(num)==2: return [[num]]
-	for i in range([2,1][one],len(num)+1):
-		print lvl+[i]
-		c.execute("select ortho from lexique where cgram='NOM' and mnemo=?;",[num[:i]])
-		r=c.fetchone()
-		if r!=None:
-			for x in longestMnemo(num[i:],lvl+[i],one and i!=1):
-				res.append([num[:i]]+x)
-	return res
 
 class shortestMnemo(QtGui.QWidget):
 	def __init__(self,num):
 		QtGui.QWidget.__init__(self)
 		print "Loading..."
-		self.r=longestMnemo(num)
+		self.r=self.longestMnemo(num)
+		self.mnemo={}
 		self.m=len(min(self.r,key=len))
 		print "Done"
 		self.v={}
 		self.initUI()
+		
+	def longestMnemo(self, num, lvl=[],one=True):
+		res=[]
+		short=len(num)/2+1
+		if len(num)==1: return [[num]]
+		if len(num)==2: return [[num]]
+		for i in range([2,1][one],len(num)+1):
+			print lvl+[i]
+			if i>2:
+				c.execute("select ortho from lexique where cgram='NOM' and mnemo=?;",[num[:i]])
+				r=c.fetchone()
+				if r!=None:
+					for x in self.longestMnemo(num[i:],lvl+[i],one and i!=1):
+						res.append([num[:i]]+x)
+			else:
+				for x in self.longestMnemo(num[i:],lvl+[i],one and i!=1):
+						res.append([num[:i]]+x)
+		return res
+
 
 	def initUI(self):
 		self.scroll = QtGui.QScrollArea(self)
@@ -51,15 +59,26 @@ class shortestMnemo(QtGui.QWidget):
 						L.setStyleSheet("QLabel {color: red}")
 					hboxH.addWidget(L)
 					C=QtGui.QComboBox()
-					c.execute("select ortho from lexique where cgram='NOM' and mnemo=? order by ortho;",[x])
-					for s in c:
-						C.addItem(s[0])
-					c.execute("select nom from mnemo where mnemo=?;",[x]);
-					r=c.fetchone()
-					if r!=None:
-						C.setCurrentIndex(C.findText(r[0]))
+					if x in self.mnemo:
+						for s in self.mnemo[x]['list']:
+								C.addItem(s)
+						if self.mnemo[x]['default']!=None:
+								C.setCurrentIndex(C.findText(self.mnemo[x]['default']))
+						else:
+								C.setStyleSheet("background: blue")
 					else:
-						C.setStyleSheet("background: blue")
+							c.execute("select ortho from lexique where cgram='NOM' and mnemo=? order by ortho;",[x])
+							self.mnemo[x]={'default':None,'list':[]}
+							for s in c:
+											self.mnemo[x]['list'].append(s[0])
+											C.addItem(s[0])
+							c.execute("select nom from mnemo where mnemo=?;",[x]);
+							r=c.fetchone()
+							if r!=None:
+								self.mnemo[x]['default']=r[0]
+								C.setCurrentIndex(C.findText(r[0]))
+							else:
+								C.setStyleSheet("background: blue")
 					C.activated.connect(self.updateMnemo)
 					if not x in self.v:
 						self.v[x]=[]
