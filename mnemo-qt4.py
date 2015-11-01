@@ -14,11 +14,22 @@ c = conn.cursor()
 class shortestMnemo(QtGui.QWidget):
 	def __init__(self,num):
 		QtGui.QWidget.__init__(self)
-		print "Loading..."
+		self.pb = QtGui.QProgressBar()
+		self.scroll = QtGui.QScrollArea(self)
+		self.scroll.setWidgetResizable(True)
+		self.scroll.setHorizontalScrollBarPolicy(1)
+		self.scrollCont = QtGui.QFrame(self.scroll)
+		self.scroll.setWidget(self.scrollCont)
+		self.Vlayout=QtGui.QVBoxLayout()
+		self.Vlayout.addWidget(self.pb)
+		self.Vlayout.addWidget(self.scroll)
+		self.setLayout(self.Vlayout)
+		self.show()
+		
+		self.pb.setMaximum(2**(len(num)-1))
 		self.r=self.longestMnemo(num)
 		self.mnemo={}
 		self.m=len(min(self.r,key=len))
-		print "Done"
 		self.v={}
 		self.initUI()
 		
@@ -29,28 +40,31 @@ class shortestMnemo(QtGui.QWidget):
 		if len(num)==1: return [[num]]
 		if len(num)==2: return [[num]]
 		for i in range([2,1][one],len(num)+1):
-			print lvl+[i]
-			if i>2:
+			L=lvl+[i]
+			OK=i<3
+			if not OK:
 				c.execute("select ortho from lexique where cgram='NOM' and mnemo=?;",[num[:i]])
 				r=c.fetchone()
-				if r!=None:
-					for x in self.longestMnemo(num[i:],lvl+[i]):
-						res.append([num[:i]]+x)
-			else:
-				for x in self.longestMnemo(num[i:],lvl+[i]):
-						res.append([num[:i]]+x)
+				if r!=None: OK=True
+			if OK:
+				for x in self.longestMnemo(num[i:],L):
+						R=[num[:i]]+x
+						if lvl==[]:
+							V=[len(z) for z in R]
+							v=sum([2**(sum(V[j:])-1)-2**(sum(V[(j+1):])) for j in range(len(V))])
+							self.pb.setValue(v)
+						res.append(R)
 		return res
 
 
 	def initUI(self):
-		self.scroll = QtGui.QScrollArea(self)
-		self.scroll.setWidgetResizable(True)
 		self.scroll.setFixedHeight(800)
-		self.scroll.setHorizontalScrollBarPolicy(1)
-		self.scrollCont = QtGui.QWidget(self.scroll)
-		self.scroll.setWidget(self.scrollCont)
-		self.vbox = QtGui.QVBoxLayout()
-		for y in self.r:
+		self.vbox = QtGui.QVBoxLayout(self.scrollCont)
+		self.pb.setValue(0)
+		self.pb.setMaximum(len(self.r))
+		self.pb.setStyleSheet('QProgressBar::chunk {background: blue;}')
+		for i,y in enumerate(self.r):
+			self.pb.setValue(i)
 			if len(y)-self.m<2:
 				hboxH = QtGui.QHBoxLayout()
 				hbox = QtGui.QHBoxLayout()
@@ -88,10 +102,9 @@ class shortestMnemo(QtGui.QWidget):
 				self.vbox.addLayout(hboxH)
 				self.vbox.addLayout(hbox)
 		self.scrollCont.setLayout(self.vbox)
-		v=QtGui.QVBoxLayout()
-		v.addWidget(self.scroll)
-		self.setLayout(v)
-		self.show()
+		self.Vlayout.removeWidget(self.pb)
+		self.pb.deleteLater()
+		self.setMinimumWidth(self.sizeHint().width())
 
 	def updateMnemo(self):
 			sender = self.sender()
@@ -111,4 +124,5 @@ if len(sys.argv)<2:
 else:
 	s=shortestMnemo(sys.argv[1])
 sys.exit(app.exec_())
+del s.window
 conn.close()
