@@ -27,6 +27,7 @@ class shortestMnemo(QtGui.QWidget):
 		self.show()
 		
 		self.pb.setMaximum(2**(len(num)-1))
+		self.mnemoSeq=[]
 		self.r=self.longestMnemo(num)
 		self.mnemo={}
 		self.m=len(min(self.r,key=len))
@@ -41,11 +42,13 @@ class shortestMnemo(QtGui.QWidget):
 		if len(num)==2: return [[num]]
 		for i in range([2,1][one],len(num)+1):
 			L=lvl+[i]
-			OK=i<3
+			OK=i<3 or num[:i] in self.mnemoSeq
 			if not OK:
 				c.execute("select ortho from lexique where cgram='NOM' and mnemo=?;",[num[:i]])
 				r=c.fetchone()
-				if r!=None: OK=True
+				if r!=None:
+					OK=True
+					self.mnemoSeq.append(num[:i])
 			if OK:
 				for x in self.longestMnemo(num[i:],L):
 						R=[num[:i]]+x
