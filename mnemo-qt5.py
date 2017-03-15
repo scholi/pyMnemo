@@ -15,7 +15,7 @@ def longestMnemo(num, lvl=[]):
 	res=[]
 	if len(num)==1: return [[num]]
 	for i in range(2,len(num)+1):
-		print lvl+[i]
+		print(lvl+[i])
 		c.execute("select ortho from lexique where cgram='NOM' and mnemo=?;",[num[:i]])
 		r=c.fetchone()
 		if r!=None:
@@ -26,10 +26,10 @@ def longestMnemo(num, lvl=[]):
 class shortestMnemo(QWidget):
 	def __init__(self,num):
 		QWidget.__init__(self)
-		print "Loading..."
+		print("Loading...")
 		self.r=longestMnemo(num)
 		self.m=len(min(self.r,key=len))
-		print "Done"
+		print("Done")
 		self.v={}
 		self.initUI()
 
