@@ -5,7 +5,7 @@ import sqlite3
 import string
 
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QComboBox, QHBoxLayout, QVBoxLayout, QLabel, QScrollArea
+from PyQt5.QtWidgets import QApplication, QWidget, QComboBox, QHBoxLayout, QVBoxLayout, QLabel, QScrollArea, QInputDialog
 from PyQt5.QtCore import QObject, pyqtSignal, Qt
 
 conn = sqlite3.connect('Lexique380.db')
@@ -88,6 +88,10 @@ class shortestMnemo(QWidget):
                 x.setStyleSheet("background: none")
 
 app = QApplication(sys.argv)
-s = shortestMnemo(sys.argv[1])
+if len(sys.argv)>1:
+    num = sys.argv[1]
+else:
+    num = QInputDialog().getText(None,"Enter your number","Number")[0]
+s = shortestMnemo(num)
 sys.exit(app.exec_())
 conn.close()
