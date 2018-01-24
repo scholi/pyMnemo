@@ -63,7 +63,7 @@ class shortestMnemo(QtGui.QWidget):
         self.scroll.setFixedHeight(800)
         self.vbox = QtGui.QVBoxLayout(self.scrollCont)
         self.pb.setValue(0)
-        self.pb.setMaximum(len(self.r))
+        self.pb.setMaximum(len(self.r)-1)
         self.pb.setStyleSheet('QProgressBar::chunk {background: blue;}')
         for i, y in enumerate(self.r):
             self.pb.setValue(i)
