@@ -23,8 +23,4 @@ By changing this number you will update the database by setting this specific wo
 
 Numbers with a blue background are number without default values.
 Lines with red numbers is the shortest possibilities. In our example 
-![7 337](https://placehold.it/30/ffffff/f03c15?text=+) `7 337`
-![73 37](https://placehold.it/30/ffffff/f03c15?text=+) `73 37`
-, and 
-![733 7](https://placehold.it/30/ffffff/f03c15?text=+) `733 7`
- can express the number 7337 as a combination of 2 words (which is the shortest).
+7 337, 73 37 and 733 7 can express the number 7337 as a combination of 2 words (which is the shortest).
